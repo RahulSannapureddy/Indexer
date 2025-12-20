@@ -9,6 +9,13 @@ os.makedirs("data/processed_docs", exist_ok=True)
 os.makedirs("data/processed_docs/display", exist_ok=True)
 os.makedirs("data/processed_docs/index", exist_ok=True)
 
+def load_stopwords(file_path):
+    with open(file_path, encoding="utf-8") as f:
+        stopwords = set(word.strip() for word in f if word.strip())
+    return stopwords
+
+stopwords = load_stopwords("data/stopwords.txt")
+
 # Creating CSV file with headers
 if not os.path.exists("data/processed_docs/metadata.csv"):
     with open("data/processed_docs/metadata.csv", mode="w", newline="", encoding="utf-8") as file:
@@ -44,7 +51,7 @@ with open('data/raw_pages/url_mapping.csv', mode="r", encoding="utf-8") as mappi
             paragraphs = content_div.find_all("p")
 
             text_content = "\n\n".join(
-                p.get_text(strip=True)
+                p.get_text(separator=" ", strip=True)
                 for p in paragraphs
                 if p.get_text(strip=True)
             )
@@ -57,12 +64,16 @@ with open('data/raw_pages/url_mapping.csv', mode="r", encoding="utf-8") as mappi
                 display_file.write(text_content)
             
             normalized_text = text_content.lower()
-            normalized_text = re.sub(r"'s\b", "", normalized_text)
+            normalized_text = normalized_text.replace("’", "'")
+            normalized_text = re.sub(r"\b(\w+)('s|')\b", r"\1", normalized_text)
             normalized_text = normalized_text.translate(str.maketrans("", "", string.punctuation))
             normalized_text = re.sub(r'\s+', ' ', normalized_text).strip()
+            tokens = normalized_text.split()
+            tokens = [t for t in tokens if t not in stopwords]
+            index_text = " ".join(tokens)
 
             with open(index_path, mode="w", encoding="utf-8") as index_file:
-                index_file.write(normalized_text)
+                index_file.write(index_text)
             
             # Update the csv mapping file
             new_row = {

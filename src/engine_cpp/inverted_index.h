@@ -11,6 +11,7 @@ public:
     int get_document_count() const;
     int get_document_length(int doc_id) const;
     double get_idf(const std::string &term) const;
+    double get_avg_document_length() const;
 
 private:
     std::unordered_map<std::string, std::unordered_map<int, int>> tempIndex;

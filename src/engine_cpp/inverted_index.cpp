@@ -56,6 +56,19 @@ double InvertedIndex::get_idf(const std::string &term) const
     return 0.0; // if term not found
 }
 
+double InvertedIndex::get_avg_document_length() const
+{
+    if (total_docs == 0)
+        return 0.0;
+
+    double total_length = 0.0;
+    for (const auto &[doc_id, length] : doc_lengths)
+    {
+        total_length += length;
+    }
+    return total_length / total_docs;
+}
+
 void InvertedIndex::finalizeIndex()
 {
     for (auto &[token, docMap] : tempIndex)

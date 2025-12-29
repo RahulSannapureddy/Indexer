@@ -1,6 +1,7 @@
 #include "inverted_index.h"
 #include <sstream>
 #include <algorithm>
+#include <cmath>
 using namespace std;
 
 void InvertedIndex::add_document(int doc_id, const std::string &text)
@@ -45,6 +46,16 @@ int InvertedIndex::get_document_length(int doc_id) const
     return 0; // if doc_id not found
 }
 
+double InvertedIndex::get_idf(const std::string &term) const
+{
+    auto it = idf.find(term);
+    if (it != idf.end())
+    {
+        return static_cast<int>(it->second);
+    }
+    return 0.0; // if term not found
+}
+
 void InvertedIndex::finalizeIndex()
 {
     for (auto &[token, docMap] : tempIndex)
@@ -59,9 +70,21 @@ void InvertedIndex::finalizeIndex()
         sort(postings.begin(), postings.end()); // sort by docID
         Index[token] = postings;
     }
+
+    compute_idf();
 }
 
 void InvertedIndex::add_token(const std::string &token, int doc_id)
 {
     tempIndex[token][doc_id]++;
+}
+
+void InvertedIndex::compute_idf()
+{
+    int N = total_docs;
+    for (const auto &[term, postings] : Index)
+    {
+        int df = postings.size();
+        idf[term] = log((N - df + 0.5) / (df + 0.5));
+    }
 }

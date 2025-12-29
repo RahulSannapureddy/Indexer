@@ -10,6 +10,7 @@ public:
     const std::vector<std::pair<int, int>> &get_postings(const std::string &term) const;
     int get_document_count() const;
     int get_document_length(int doc_id) const;
+    double get_idf(const std::string &term) const;
 
 private:
     std::unordered_map<std::string, std::unordered_map<int, int>> tempIndex;
@@ -17,5 +18,7 @@ private:
     void finalizeIndex();
     void add_token(const std::string &token, int doc_id);
     std::unordered_map<int, int> doc_lengths;
+    std::unordered_map<std::string, double> idf;
+    void compute_idf();
     int total_docs = 0;
 };

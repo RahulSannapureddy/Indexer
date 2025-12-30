@@ -2,12 +2,11 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
-using namespace std;
 
 void InvertedIndex::add_document(int doc_id, const std::string &text)
 {
-    istringstream iss(text);
-    string token;
+    std::istringstream iss(text);
+    std::string token;
     int length = 0;
 
     while (iss >> token)
@@ -22,7 +21,7 @@ void InvertedIndex::add_document(int doc_id, const std::string &text)
 
 const std::vector<std::pair<int, int>> &InvertedIndex::get_postings(const std::string &term) const
 {
-    static const vector<pair<int, int>> empty; // static empty vector to return if term not found
+    static const std::vector<std::pair<int, int>> empty; // static empty vector to return if term not found
     auto it = Index.find(term);
     if (it != Index.end())
     {
@@ -73,7 +72,7 @@ void InvertedIndex::finalizeIndex()
 {
     for (auto &[token, docMap] : tempIndex)
     {
-        vector<pair<int, int>> postings;
+        std::vector<std::pair<int, int>> postings;
 
         for (auto &[docID, freq] : docMap)
         {

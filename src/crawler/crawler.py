@@ -28,7 +28,7 @@ seed_url = 'https://simple.wikipedia.org/wiki/Formula_One'
 visited_urls = set()
 seen_urls = set([seed_url])
 queue = deque([seed_url])
-max_pages = 100
+max_pages = 1000
 
 while queue and len(visited_urls) < max_pages:
     current_url = queue.popleft()

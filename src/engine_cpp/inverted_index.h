@@ -12,11 +12,11 @@ public:
     int get_document_length(int doc_id) const;
     double get_idf(const std::string &term) const;
     double get_avg_document_length() const;
+    void finalizeIndex();
 
 private:
     std::unordered_map<std::string, std::unordered_map<int, int>> tempIndex;
     std::unordered_map<std::string, std::vector<std::pair<int, int>>> Index;
-    void finalizeIndex();
     void add_token(const std::string &token, int doc_id);
     std::unordered_map<int, int> doc_lengths;
     std::unordered_map<std::string, double> idf;

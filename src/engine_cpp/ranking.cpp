@@ -27,8 +27,6 @@ std::vector<int> Ranker::rank(const InvertedIndex &index, const std::string &que
     while (iss >> term)
     {
         double idf = index.get_idf(term);
-        if (idf == 0.0)
-            continue; // skip terms not in index
 
         const auto &postings = index.get_postings(term);
 

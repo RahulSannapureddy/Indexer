@@ -1,0 +1,30 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+.search-wrapper {
+    margin-top: 100px;
+    width: 60%;
+    text-align: center;
+}
+
+input {
+    width: 70%;
+    padding: 12px;
+    border: 1px solid #dfe1e5;
+    border-radius: 24px;
+    /* Makes the search bar rounded */
+    outline: none;
+}
+
+button {
+    padding: 12px 20px;
+    border-radius: 24px;
+    border: none;
+    background-color: #1a73e8;
+    color: white;
+    cursor: pointer;
+}

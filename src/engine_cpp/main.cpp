@@ -31,14 +31,11 @@ int main()
     // create ranking object
     Ranker ranker(1.5, 0.75, "data/stopwords.txt");
 
-    // CLI UI loop
-    while (true)
+    // UI loop
+    std::string query;
+    while (std::getline(std::cin, query))
     {
-        std::cout << "Enter your query (or type 'exit' to quit): ";
-        std::string query;
-        std::getline(std::cin, query);
-
-        if (query == "exit")
+        if (query == "exit" || query.empty())
             break;
 
         std::vector<int> top_docs = ranker.rank(index, query, 10);
@@ -46,8 +43,10 @@ int main()
         std::cout << "Top results:\n";
         for (int doc_id : top_docs)
         {
-            std::cout << "Doc ID: " << format_doc_id(doc_id) << ", URL: " << doc_urls[doc_id] << "\n";
+            // Print each result on its own line
+            std::cout << doc_id << "|" << doc_urls[doc_id] << "\n";
         }
+        std::cout << "END_OF_RESULTS" << std::endl;
     }
 
     return 0;

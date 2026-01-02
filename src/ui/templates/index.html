@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebScout Search</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="search-wrapper">
+        <h1>🔍 WebScout</h1>
+        <div class="input-group">
+            <input type="text" id="query" placeholder="Type your search here..." autocomplete="off">
+            <button onclick="search()">Search</button>
+        </div>
+        <div id="results-container"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>

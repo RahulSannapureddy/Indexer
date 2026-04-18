@@ -10,7 +10,7 @@ import csv
 os.makedirs("data/raw_pages", exist_ok=True)
 
 def url_to_filename(url):
-    return hashlib.md5(url.encode()).hexdigest() + '.html'
+    return hashlib.sha256(url.encode()).hexdigest() + '.html'
 
 # Initialize CSV if it doesn't exist
 if not os.path.exists("data/raw_pages/url_mapping.csv"):
@@ -80,11 +80,15 @@ with open("data/raw_pages/url_mapping.csv", "a", newline="", encoding="utf-8") a
 
         filename = url_to_filename(current_url)
         filepath = os.path.join("data/raw_pages", filename)
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(response.text)
-        
-        writer.writerow([filename, current_url])
-        csvfile.flush() # Ensure data is written to disk in case of crash
+        try:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(response.text)
+            
+            writer.writerow([filename, current_url])
+            csvfile.flush()
+        except IOError as e:
+            print(f"Failed to save {current_url} to {filepath}: {e}")
+            continue
 
         visited_urls.add(current_url)
         soup = BeautifulSoup(response.text, 'html.parser')

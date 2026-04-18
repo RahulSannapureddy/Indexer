@@ -55,13 +55,17 @@ with open('data/raw_pages/url_mapping.csv', mode="r", encoding="utf-8") as mappi
             display_path = os.path.join("data/processed_docs/display", f"{doc_id}.txt")
             index_path = os.path.join("data/processed_docs/index", f"{doc_id}.txt")
 
-            with open(html_path, mode="r", encoding="utf-8") as html_file:
-                soup = BeautifulSoup(html_file, "html.parser")
-            
-            content_div = soup.find("div", id="mw-content-text")
+            try:
+                with open(html_path, mode="r", encoding="utf-8") as html_file:
+                    soup = BeautifulSoup(html_file, "html.parser")
+                
+                content_div = soup.find("div", id="mw-content-text")
 
-            if content_div is None:
-                print(f"Skipping {filename}: content not found")
+                if content_div is None:
+                    print(f"Skipping {filename}: content not found")
+                    continue
+            except Exception as e:
+                print(f"Error processing {filename}: {e}")
                 continue
             
             paragraphs = content_div.find_all("p")

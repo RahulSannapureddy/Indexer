@@ -110,9 +110,12 @@ with open("data/raw_pages/url_mapping.csv", "a", newline="", encoding="utf-8") a
                             queue.append(full_url)
                             seen_urls.add(full_url)
         
+        time.sleep(1)
+
+    except KeyboardInterrupt:
+        print("\nInterrupted by user. Saving queue and exiting...")
+    finally:
         with open("data/raw_pages/queue.txt", "w", encoding="utf-8") as qf:
             for url in queue:
                 qf.write(url + "\n")
-        
-        time.sleep(1)
 

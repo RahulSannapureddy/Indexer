@@ -30,13 +30,17 @@ seed_url = 'https://simple.wikipedia.org/wiki/Formula_One'.split('#')[0]
 visited_urls = set()
 seen_urls = {seed_url}
 
-# Load existing progress from CSV
+# Load existing progress from CSV and verify files exist
 if os.path.exists("data/raw_pages/url_mapping.csv"):
     with open("data/raw_pages/url_mapping.csv", "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            visited_urls.add(row['url'])
-            seen_urls.add(row['url'])
+            filename = row['filename']
+            url = row['url']
+            seen_urls.add(url)
+            # Only mark as visited if the actual file exists on disk
+            if os.path.exists(os.path.join("data/raw_pages", filename)):
+                visited_urls.add(url)
 
 queue = deque([url for url in [seed_url] if url not in visited_urls])
 max_pages = 1000

@@ -58,6 +58,9 @@ with open("data/raw_pages/url_mapping.csv", "a", newline="", encoding="utf-8") a
             response = session.get(current_url, timeout=10)
             response.raise_for_status()
             current_url = response.url
+            if current_url in visited_urls:
+                continue
+            seen_urls.add(current_url)
         except requests.RequestException as e:
             print(f"Failed to retrieve {current_url}: {e}")
             continue

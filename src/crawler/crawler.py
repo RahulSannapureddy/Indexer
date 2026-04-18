@@ -26,7 +26,7 @@ session.headers.update({
     'User-Agent': 'IndexerBot/1.0 (educational purposes)'
 })
 
-seed_url = 'https://simple.wikipedia.org/wiki/Formula_One'
+seed_url = 'https://simple.wikipedia.org/wiki/Formula_One'.split('#')[0]
 visited_urls = set()
 seen_urls = {seed_url}
 queue = deque([seed_url])

@@ -22,20 +22,36 @@ if not os.path.exists("data/processed_docs/metadata.csv"):
         writer = csv.writer(file)
         writer.writerow(["doc_id", "filename", "url"])
 
-# Pre-processing html files
+processed_urls = set()
+if os.path.exists("data/processed_docs/metadata.csv"):
+    with open("data/processed_docs/metadata.csv", mode="r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            processed_urls.add(row['url'])
+
 with open('data/raw_pages/url_mapping.csv', mode="r", encoding="utf-8") as mapping_file:
     reader = csv.DictReader(mapping_file)
 
     with open("data/processed_docs/metadata.csv", mode="a", newline="", encoding="utf-8") as metadata_file:
         fieldnames = ["doc_id", "filename", "url"]
         writer = csv.DictWriter(metadata_file, fieldnames=fieldnames)
+        
+        # Get the next doc_id based on the current size of the metadata
+        current_id_count = len(processed_urls)
 
-        for row_no, row in enumerate(reader):
-            doc_id = f"{row_no:06d}"
+        for row in reader:
             filename = row['filename']
             url = row['url']
 
+            if url in processed_urls:
+                continue
+
+            doc_id = f"{current_id_count:06d}"
+            current_id_count += 1
+            
             html_path = os.path.join("data/raw_pages", filename)
+            if not os.path.exists(html_path):
+                continue
             display_path = os.path.join("data/processed_docs/display", f"{doc_id}.txt")
             index_path = os.path.join("data/processed_docs/index", f"{doc_id}.txt")
 
@@ -56,6 +72,7 @@ with open('data/raw_pages/url_mapping.csv', mode="r", encoding="utf-8") as mappi
                 if p.get_text(strip=True)
             )
 
+            text_content = re.sub(r"\[\d+\]", "", text_content)
             text_content = re.sub(r"[ \t]+", " ", text_content)
             text_content = re.sub(r"\n{3,}", "\n\n", text_content)
             text_content = text_content.strip()

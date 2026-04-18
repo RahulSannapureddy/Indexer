@@ -1,4 +1,8 @@
 # Indexer
 
 ## Web Crawler
-This project includes a focused web crawler designed to build a local dataset from Simple Wikipedia. It systematically traverses articles, handles connection pooling for efficiency, and saves raw HTML content for downstream indexing and search.
+- Crawls Simple Wikipedia articles starting from a seed URL until it hits a 1,000-page limit.
+- Uses session connection pooling to speed up requests and reduce network overhead.
+- Automatically handles resuming by checking existing CSV logs and local HTML files.
+- Strips URL fragments and normalizes paths to prevent downloading duplicate content.
+- Saves raw HTML locally and maintains a clean mapping of filenames to original URLs.

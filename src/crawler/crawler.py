@@ -29,7 +29,16 @@ session.headers.update({
 seed_url = 'https://simple.wikipedia.org/wiki/Formula_One'.split('#')[0]
 visited_urls = set()
 seen_urls = {seed_url}
-queue = deque([seed_url])
+
+# Load existing progress from CSV
+if os.path.exists("data/raw_pages/url_mapping.csv"):
+    with open("data/raw_pages/url_mapping.csv", "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            visited_urls.add(row['url'])
+            seen_urls.add(row['url'])
+
+queue = deque([url for url in [seed_url] if url not in visited_urls])
 max_pages = 1000
 
 # Open mapping file once for efficient appending

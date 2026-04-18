@@ -65,12 +65,16 @@ with open("data/raw_pages/url_mapping.csv", "a", newline="", encoding="utf-8") a
             # Strip fragments (#) to avoid downloading the same page multiple times
             full_url = urljoin(current_url, href).split('#')[0]
 
-            if full_url.startswith('https://simple.wikipedia.org/wiki/') and ':' not in href:
+            if full_url.startswith('https://simple.wikipedia.org/wiki/'):
                 parsed = urlparse(full_url)
-                qs = parse_qs(parsed.query)
-                if 'redlink' not in qs:
-                    if full_url not in seen_urls:
-                        queue.append(full_url)
-                        seen_urls.add(full_url)
+                # Check for colons (namespaces) only in the actual page title
+                page_title = parsed.path.split('/wiki/', 1)[-1]
+                
+                if ':' not in page_title:
+                    qs = parse_qs(parsed.query)
+                    if 'redlink' not in qs:
+                        if full_url not in seen_urls:
+                            queue.append(full_url)
+                            seen_urls.add(full_url)
         
         time.sleep(1)

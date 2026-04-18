@@ -23,11 +23,14 @@ if not os.path.exists("data/processed_docs/metadata.csv"):
         writer.writerow(["doc_id", "filename", "url"])
 
 processed_urls = set()
+max_doc_id = -1
 if os.path.exists("data/processed_docs/metadata.csv"):
     with open("data/processed_docs/metadata.csv", mode="r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             processed_urls.add(row['url'])
+            if 'doc_id' in row and row['doc_id'].isdigit():
+                max_doc_id = max(max_doc_id, int(row['doc_id']))
 
 with open('data/raw_pages/url_mapping.csv', mode="r", encoding="utf-8") as mapping_file:
     reader = csv.DictReader(mapping_file)
@@ -36,8 +39,8 @@ with open('data/raw_pages/url_mapping.csv', mode="r", encoding="utf-8") as mappi
         fieldnames = ["doc_id", "filename", "url"]
         writer = csv.DictWriter(metadata_file, fieldnames=fieldnames)
         
-        # Get the next doc_id based on the current size of the metadata
-        current_id_count = len(processed_urls)
+        # Get the next doc_id based on the highest existing doc_id
+        current_id_count = max_doc_id + 1
 
         for row in reader:
             filename = row['filename']

@@ -42,7 +42,19 @@ if os.path.exists("data/raw_pages/url_mapping.csv"):
             if os.path.exists(os.path.join("data/raw_pages", filename)):
                 visited_urls.add(url)
 
-queue = deque([url for url in [seed_url] if url not in visited_urls])
+queue = deque()
+if os.path.exists("data/raw_pages/queue.txt"):
+    with open("data/raw_pages/queue.txt", "r", encoding="utf-8") as f:
+        for line in f:
+            url = line.strip()
+            if url and url not in visited_urls:
+                queue.append(url)
+                seen_urls.add(url)
+
+if not queue and seed_url not in visited_urls:
+    queue.append(seed_url)
+    seen_urls.add(seed_url)
+
 max_pages = 1000
 
 # Open mapping file once for efficient appending
@@ -96,4 +108,9 @@ with open("data/raw_pages/url_mapping.csv", "a", newline="", encoding="utf-8") a
                             queue.append(full_url)
                             seen_urls.add(full_url)
         
+        with open("data/raw_pages/queue.txt", "w", encoding="utf-8") as qf:
+            for url in queue:
+                qf.write(url + "\n")
+        
         time.sleep(1)
+

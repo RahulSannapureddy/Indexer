@@ -4,15 +4,13 @@ from urllib.parse import urljoin, urlparse, parse_qs
 from collections import deque
 import time
 import os
-import re
+import hashlib
 import csv
 
 os.makedirs("data/raw_pages", exist_ok=True)
 
 def url_to_filename(url):
-    url = url.replace('https://', '').replace('http://', '')
-    filename = re.sub(r'[^a-zA-Z0-9]', '_', url)
-    return filename + '.html'
+    return hashlib.md5(url.encode()).hexdigest() + '.html'
 
 # Initialize CSV if it doesn't exist
 if not os.path.exists("data/raw_pages/url_mapping.csv"):

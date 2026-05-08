@@ -59,58 +59,59 @@ max_pages = 1000
 with open("data/raw_pages/url_mapping.csv", "a", newline="", encoding="utf-8") as csvfile:
     writer = csv.writer(csvfile)
 
-    while queue and len(visited_urls) < max_pages:
-        current_url = queue.popleft()
-        if current_url in visited_urls:
-            continue
-
-        try:
-            response = session.get(current_url, timeout=10)
-            response.raise_for_status()
-            
-            final_url = response.url.split('#')[0]
-            if final_url in visited_urls:
+    try:
+        while queue and len(visited_urls) < max_pages:
+            current_url = queue.popleft()
+            if current_url in visited_urls:
                 continue
-                
-            current_url = final_url
-            seen_urls.add(current_url)
-        except requests.RequestException as e:
-            print(f"Failed to retrieve {current_url}: {e}")
-            continue
 
-        filename = url_to_filename(current_url)
-        filepath = os.path.join("data/raw_pages", filename)
-        try:
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(response.text)
+            try:
+                response = session.get(current_url, timeout=10)
+                response.raise_for_status()
+                
+                final_url = response.url.split('#')[0]
+                if final_url in visited_urls:
+                    continue
+                    
+                current_url = final_url
+                seen_urls.add(current_url)
+            except requests.RequestException as e:
+                print(f"Failed to retrieve {current_url}: {e}")
+                continue
+
+            filename = url_to_filename(current_url)
+            filepath = os.path.join("data/raw_pages", filename)
+            try:
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    f.write(response.text)
+                
+                writer.writerow([filename, current_url])
+                csvfile.flush()
+            except IOError as e:
+                print(f"Failed to save {current_url} to {filepath}: {e}")
+                continue
+
+            visited_urls.add(current_url)
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            for link in soup.find_all('a', href=True):
+                href = link['href']
+                # Strip fragments (#) to avoid downloading the same page multiple times
+                full_url = urljoin(current_url, href).split('#')[0]
+
+                if full_url.startswith('https://simple.wikipedia.org/wiki/'):
+                    parsed = urlparse(full_url)
+                    # Check for colons (namespaces) only in the actual page title
+                    page_title = parsed.path.split('/wiki/', 1)[-1]
+                    
+                    if ':' not in page_title:
+                        qs = parse_qs(parsed.query)
+                        if 'redlink' not in qs:
+                            if full_url not in seen_urls:
+                                queue.append(full_url)
+                                seen_urls.add(full_url)
             
-            writer.writerow([filename, current_url])
-            csvfile.flush()
-        except IOError as e:
-            print(f"Failed to save {current_url} to {filepath}: {e}")
-            continue
-
-        visited_urls.add(current_url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        for link in soup.find_all('a', href=True):
-            href = link['href']
-            # Strip fragments (#) to avoid downloading the same page multiple times
-            full_url = urljoin(current_url, href).split('#')[0]
-
-            if full_url.startswith('https://simple.wikipedia.org/wiki/'):
-                parsed = urlparse(full_url)
-                # Check for colons (namespaces) only in the actual page title
-                page_title = parsed.path.split('/wiki/', 1)[-1]
-                
-                if ':' not in page_title:
-                    qs = parse_qs(parsed.query)
-                    if 'redlink' not in qs:
-                        if full_url not in seen_urls:
-                            queue.append(full_url)
-                            seen_urls.add(full_url)
-        
-        time.sleep(1)
+            time.sleep(1)
 
     except KeyboardInterrupt:
         print("\nInterrupted by user. Saving queue and exiting...")

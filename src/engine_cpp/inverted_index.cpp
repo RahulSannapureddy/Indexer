@@ -50,7 +50,7 @@ double InvertedIndex::get_idf(const std::string &term) const
     auto it = idf.find(term);
     if (it != idf.end())
     {
-        return static_cast<int>(it->second);
+        return it->second;
     }
     return 0.0; // if term not found
 }

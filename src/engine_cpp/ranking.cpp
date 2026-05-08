@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <cctype>
 
 Ranker::Ranker(double k1_, double b_, const std::string &stopwords_file) : k1(k1_), b(b_)
 {
@@ -13,30 +14,57 @@ std::vector<int> Ranker::rank(const InvertedIndex &index, const std::string &que
 {
     std::unordered_map<int, double> scores;
 
-    std::string normalized_query = normalize_query(query);
-    if (normalized_query.empty())
-        return {};
-
-    std::istringstream iss(normalized_query);
-    std::string term;
-
     double avg_doc_length = index.get_avg_document_length();
     if (avg_doc_length == 0.0)
         return {}; // avoid division by zero
 
-    while (iss >> term)
+    std::string_view sv(query);
+    size_t start = 0;
+    
+    std::string term;
+    term.reserve(32); // Pre-allocate to minimize reallocations
+
+    while (start < sv.size())
     {
-        double idf = index.get_idf(term);
-
-        const auto &postings = index.get_postings(term);
-
-        for (const auto &posting : postings)
+        // Skip punctuation and whitespace (acting as delimiters)
+        while (start < sv.size() && (std::isspace(static_cast<unsigned char>(sv[start])) ||
+                                     std::ispunct(static_cast<unsigned char>(sv[start]))))
         {
-            int doc_id = posting.first;
-            int tf = posting.second;
-            int doc_length = index.get_document_length(doc_id);
-            double score = idf * (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (doc_length / avg_doc_length)));
-            scores[doc_id] += score;
+            start++;
+        }
+        if (start >= sv.size())
+            break;
+
+        size_t end = start;
+        while (end < sv.size() && !std::isspace(static_cast<unsigned char>(sv[end])) &&
+               !std::ispunct(static_cast<unsigned char>(sv[end])))
+        {
+            end++;
+        }
+
+        std::string_view token = sv.substr(start, end - start);
+        start = end;
+
+        // Lowercase the token into our reusable string
+        term.clear();
+        for (char c : token)
+        {
+            term += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        }
+
+        if (stopwords.find(term) == stopwords.end())
+        {
+            double idf = index.get_idf(term);
+            const auto &postings = index.get_postings(term);
+
+            for (const auto &posting : postings)
+            {
+                int doc_id = posting.first;
+                int tf = posting.second;
+                int doc_length = index.get_document_length(doc_id);
+                double score = idf * (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (doc_length / avg_doc_length)));
+                scores[doc_id] += score;
+            }
         }
     }
 
@@ -45,7 +73,7 @@ std::vector<int> Ranker::rank(const InvertedIndex &index, const std::string &que
               { return a.second > b.second; });
 
     std::vector<int> results;
-    for (int i = 0; i < k && i < scored_docs.size(); i++)
+    for (int i = 0; i < k && i < (int)scored_docs.size(); i++)
     {
         results.push_back(scored_docs[i].first);
     }
@@ -60,38 +88,8 @@ void Ranker::load_stopwords(const std::string &stopwords_file)
         throw std::runtime_error("Could not open stopwords file: " + stopwords_file);
 
     std::string word;
-
     while (file >> word)
     {
         stopwords.insert(word);
     }
-}
-
-std::string Ranker::normalize_query(const std::string &query) const
-{
-    std::string cleaned;
-    cleaned.reserve(query.size());
-    for (char c : query)
-    {
-        if (!std::ispunct(static_cast<unsigned char>(c)))
-            cleaned += std::tolower(static_cast<unsigned char>(c));
-        else
-            cleaned += ' ';
-    }
-
-    std::istringstream iss(cleaned);
-    std::string term;
-    std::string normalized = "";
-
-    while (iss >> term)
-    {
-        if (stopwords.find(term) == stopwords.end())
-        {
-            if (!normalized.empty())
-                normalized += " ";
-            normalized += term;
-        }
-    }
-
-    return normalized;
 }

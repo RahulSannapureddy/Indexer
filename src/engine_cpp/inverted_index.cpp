@@ -114,6 +114,7 @@ void InvertedIndex::finalizeIndex()
         Index[term_id] = postings;
     }
 
+    tempIndex.clear(); // Free up memory no longer needed
     compute_idf();
 }
 

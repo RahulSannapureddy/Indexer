@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <string_view>
 #include <unordered_set>
 #include "inverted_index.h"
 
@@ -18,5 +19,4 @@ private:
     std::unordered_set<std::string> stopwords;
 
     void load_stopwords(const std::string &stopwords_file);
-    std::string normalize_query(const std::string &query) const;
 };

@@ -101,7 +101,7 @@ double InvertedIndex::get_avg_document_length() const
 
 void InvertedIndex::finalizeIndex()
 {
-    for (auto &[token, docMap] : tempIndex)
+    for (auto &[term_id, docMap] : tempIndex)
     {
         std::vector<std::pair<int, int>> postings;
 
@@ -111,7 +111,7 @@ void InvertedIndex::finalizeIndex()
         }
 
         sort(postings.begin(), postings.end()); // sort by docID
-        Index[token] = postings;
+        Index[term_id] = postings;
     }
 
     compute_idf();
@@ -136,9 +136,9 @@ void InvertedIndex::add_token(const std::string &token, int doc_id)
 void InvertedIndex::compute_idf()
 {
     int N = total_docs;
-    for (const auto &[term, postings] : Index)
+    for (const auto &[term_id, postings] : Index)
     {
         int df = postings.size();
-        idf[term] = log((N - df + 0.5) / (df + 0.5));
+        idf[term_id] = log((N - df + 0.5) / (df + 0.5));
     }
 }

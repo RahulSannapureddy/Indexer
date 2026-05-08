@@ -54,16 +54,20 @@ std::vector<int> Ranker::rank(const InvertedIndex &index, const std::string &que
 
         if (stopwords.find(term) == stopwords.end())
         {
-            double idf = index.get_idf(term);
-            const auto &postings = index.get_postings(term);
-
-            for (const auto &posting : postings)
+            int term_id = index.get_term_id(term);
+            if (term_id != -1)
             {
-                int doc_id = posting.first;
-                int tf = posting.second;
-                int doc_length = index.get_document_length(doc_id);
-                double score = idf * (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (doc_length / avg_doc_length)));
-                scores[doc_id] += score;
+                double idf = index.get_idf(term_id);
+                const auto &postings = index.get_postings(term_id);
+
+                for (const auto &posting : postings)
+                {
+                    int doc_id = posting.first;
+                    int tf = posting.second;
+                    int doc_length = index.get_document_length(doc_id);
+                    double score = idf * (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (doc_length / avg_doc_length)));
+                    scores[doc_id] += score;
+                }
             }
         }
     }

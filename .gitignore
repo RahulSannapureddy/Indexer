@@ -1,3 +1,7 @@
 venv/
 
 data/
+
+src/engine_cpp/search_engine
+
+

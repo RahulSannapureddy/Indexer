@@ -103,10 +103,20 @@ To measure the raw efficiency of our indexing pipeline, we used a dedicated benc
 | :--- | :--- | :--- | :--- |
 | **Full Index Construction** | 141.6 ms | 11.2 ms | 123.4 – 171.8 |
 
+### Pure Query Latency (Hot Index)
+To measure the raw speed of the BM25 ranking algorithm, we isolated the query process from the index loading phase. This benchmark measures how long it takes to search once the index is already fully loaded in memory.
+
+**Results (Average of 1,000 iterations per query):**
+| Query | Complexity | Average Latency (ms) |
+| :--- | :--- | :--- |
+| `"Ferrari"` | Single Word | 0.0122 ms |
+| `"Grand Prix"` | Multi-Word | 0.0186 ms |
+| `"Fédération Internationale..."` | Long Phrase | 0.0178 ms |
+
 ### Performance Analysis
-- **Startup Overhead:** approximately **120-140ms** is the "cold start" cost of building the search engine from raw text files.
-- **Scaling:** With a mean of 141ms for 1,100 documents, the engine indexes at a rate of roughly **7,800 documents per second** (or ~0.13ms per document).
-- **Bottlenecks:** The variance (±11.2ms) is primarily driven by OS-level file system I/O, as the engine must open and close 1,100 individual small files.
+- **Query Efficiency:** Once the index is loaded, the engine is capable of performing over **50,000 searches per second** on the current dataset.
+- **Latency Breakdown:** The "Pure Query" time (0.01-0.02ms) accounts for less than **0.02%** of the total end-to-end execution time in a cold start.
+- **Scaling:** The sub-millisecond latency demonstrates that the bottleneck in local search is almost exclusively disk I/O (loading files), while the C++ ranking engine is extremely highly optimized.
 
 ## 📁 Repository Structure
 - `src/crawler/`: Wikipedia BFS crawler.

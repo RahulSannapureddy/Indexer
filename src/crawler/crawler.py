@@ -53,7 +53,7 @@ if not queue and seed_url not in visited_urls:
     queue.append(seed_url)
     seen_urls.add(seed_url)
 
-max_pages = 1000
+max_pages = 1100
 
 # Open mapping file once for efficient appending
 with open("data/raw_pages/url_mapping.csv", "a", newline="", encoding="utf-8") as csvfile:
@@ -64,6 +64,9 @@ with open("data/raw_pages/url_mapping.csv", "a", newline="", encoding="utf-8") a
             current_url = queue.popleft()
             if current_url in visited_urls:
                 continue
+            
+            progress = len(visited_urls) + 1
+            print(f"[{progress}/{max_pages}] Crawling: {current_url}")
 
             try:
                 response = session.get(current_url, timeout=10)

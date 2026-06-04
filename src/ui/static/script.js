@@ -18,13 +18,19 @@ async function search() {
 
         container.innerHTML = ""; // Clear the status text
 
-        if (data.length === 0) {
+        if (!data.results || data.results.length === 0) {
             container.innerHTML = "<p class='status-msg'>No results found.</p>";
             return;
         }
 
+        // Add search stats line
+        const stats = document.createElement('p');
+        stats.className = 'search-stats';
+        stats.textContent = `About ${data.results.length} results (${data.time} milliseconds)`;
+        container.appendChild(stats);
+
         // 3. Loop through results and create HTML elements
-        data.forEach(result => {
+        data.results.forEach(result => {
             const resultDiv = document.createElement('div');
             resultDiv.className = 'result-item';
 

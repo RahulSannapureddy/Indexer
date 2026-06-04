@@ -22,7 +22,14 @@ cpp_process = subprocess.Popen([engine_path],
                                stdin=subprocess.PIPE, 
                                stdout=subprocess.PIPE, 
                                text=True,
-                               bufsize=1) # bufsize=1 for line buffering
+                               bufsize=1)
+
+# Read the initial load time benchmark
+load_time_line = cpp_process.stdout.readline().strip()
+if load_time_line.startswith("LOAD_TIME_MS|"):
+    print(f"C++ Engine Loaded. {load_time_line}")
+else:
+    print("Warning: Unexpected output from C++ engine during startup.")
 
 @app.route('/')
 def index():
@@ -32,13 +39,14 @@ def index():
 def search():
     query = request.args.get('q', '').strip()
     if not query:
-        return jsonify([])
+        return jsonify({"results": [], "time": 0})
 
     # Send query to C++ engine
     cpp_process.stdin.write(query + "\n")
     cpp_process.stdin.flush()
 
     results = []
+    search_time = 0
     while True:
         line = cpp_process.stdout.readline().strip()
         
@@ -48,13 +56,22 @@ def search():
             
         if "|" in line:
             parts = line.split('|')
-            # Handle ID|URL
-            results.append({
-                "id": parts[0], 
-                "url": parts[1]
-            })
+            if parts[0] == "TIME_MS":
+                try:
+                    search_time = float(parts[1])
+                except ValueError:
+                    search_time = 0
+            else:
+                # Handle ID|URL
+                results.append({
+                    "id": parts[0], 
+                    "url": parts[1]
+                })
 
-    return jsonify(results)
+    return jsonify({
+        "results": results,
+        "time": search_time
+    })
 
 def open_browser():
     webbrowser.open_new("http://127.0.0.1:5000")

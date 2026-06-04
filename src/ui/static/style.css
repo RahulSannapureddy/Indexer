@@ -28,3 +28,9 @@ button {
     color: white;
     cursor: pointer;
 }
+.search-stats {
+    color: #70757a;
+    font-size: 14px;
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+}

@@ -1,15 +1,30 @@
+# Environments
 venv/
+.env
 
+# Data and Artifacts
 data/
+graphify-out/
+.graphify_analysis.json
 
+# C++ Build Artifacts
 src/engine_cpp/search_engine
-
-repomix*
-
-customplan.md
-
-docs/
-
 src/engine_cpp/test_ranking
+*.o
+*.a
+*.out
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 
+# IDEs and OS
+.DS_Store
+.vscode/
+.idea/
+
+# Tooling
+repomix*
+customplan.md
+docs/

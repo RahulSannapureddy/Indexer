@@ -1,5 +1,6 @@
 # Environments
 venv/
+.venv/
 .env
 
 # Data and Artifacts
@@ -10,6 +11,8 @@ graphify-out/
 # C++ Build Artifacts
 src/engine_cpp/search_engine
 src/engine_cpp/test_ranking
+src/engine_cpp/index_benchmark
+src/engine_cpp/query_benchmark
 *.o
 *.a
 *.out
